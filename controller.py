@@ -32,12 +32,11 @@ except Exception:
 if is_host:
     import threading
 
-    # Start server in a non-daemon thread so it stays alive until we exit
+
     threading.Thread(target=server.start_server, daemon=False).start()
     print("Server started in background thread.")
 
-    # Create only the local host player here; remote clients will be created on the
-    # server side and stored in `server.server_players` when they register.
+
     host_player = player(ip="host", funds=starting_funds, hand=[], total=[
                          0], playing=True, in_for=0, ace_high=True, host=True)
     try:
@@ -74,9 +73,7 @@ if is_host:
         for p in all_players:
             print(f"{p.ip} hand: {p.hand} total: {p.total}")
 
-        # Keep the program alive so the server thread continues running and you
-        # can continue interacting with server (server.start_server runs a
-        # server_input thread already). Sleep loop until KeyboardInterrupt.
+
         print("Server is running. Press Ctrl+C to stop.")
         try:
             while True:
