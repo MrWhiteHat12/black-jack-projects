@@ -9,6 +9,24 @@ from blackJackPlayer import player
 import server
 import client
 
+# Ensure UTF-8 output on Windows consoles to avoid garbled suit characters.
+# Uses Win32 API to set the console output code page to 65001 (UTF-8).
+try:
+    if sys.platform.startswith("win"):
+        import ctypes
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+except Exception:
+    # If this fails (non-Windows or insufficient permissions), continue silently
+    pass
+
+# Replace builtins.print with a thread-safe wrapper to avoid interleaved output
+try:
+    from safe_print import safe_print
+    builtins.print = safe_print
+except Exception:
+    # If import fails, keep the original print
+    pass
+
 
 print("Are you the game host? (y/n)")
 is_host = input().strip().lower() == "y"
@@ -32,10 +50,8 @@ except Exception:
 if is_host:
     import threading
 
-
     threading.Thread(target=server.start_server, daemon=False).start()
     print("Server started in background thread.")
-
 
     host_player = player(ip="host", funds=starting_funds, hand=[], total=[
                          0], playing=True, in_for=0, ace_high=True, host=True)
@@ -72,7 +88,6 @@ if is_host:
         print("All players have joined. Hands:")
         for p in all_players:
             print(f"{p.ip} hand: {p.hand} total: {p.total}")
-
 
         print("Server is running. Press Ctrl+C to stop.")
         try:
